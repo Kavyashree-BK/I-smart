@@ -1,22 +1,37 @@
-import React, { useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 
 const AgreementForm = () => {
-  const agreementTypes = ["Agreement", "WO", "PO", "LOI"]; 
+
+  const [entityType, setEntityType] = useState("single");
+
+  const agreementTypes = ["Agreement", "WO", "PO", "LOI"];
   
+
   const [clauses, setClauses] = useState([
-    { title: "Term and termination (Duration)", placeholder: "e.g. 30 days" },
-    { title: "Payment Terms", placeholder: "e.g. 15" },
-    { title: "Penalty", placeholder: "e.g. 500/-" },
+    { title: "Term and termination (Duration)", placeholder: "30 days" },
+    { title: "Payment Terms", placeholder: "15" },
+    { title: "Penalty", placeholder: "500/-" },
     { title: "Minimum Wages", placeholder: "Yearly / Not Allowed / At Actual" },
     { title: "Costing - Salary Breakup", placeholder: "Yes / No" },
     { title: "SLA", placeholder: "Specific Page/Clause" },
     { title: "Indemnity", placeholder: "Specific Page/Clause" },
     { title: "Insurance", placeholder: "Specific Page/Clause" },
   ]);
+ const[underList,setUnderList]=useState([
+  {type:"text",placeholder:"Under list / annexure",className:"border border-gray-300 p-2 rounded text-sm " },
+ 
+
+ ])
 
   const handleAddClause = () => {
     setClauses([...clauses, { title: "", placeholder: "Enter clause details" }]);
   };
+ 
+
+  const duplicateElement=()=>{
+
+setUnderList([...underList,...underList])
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-6 bg-white rounded shadow">
@@ -48,55 +63,66 @@ const AgreementForm = () => {
             className="col-span-1 border border-gray-300 p-2 rounded text-sm"
           />
 
-          <input
-            type="file"
-            className="col-span-2 text-sm text-gray-600"
-          />
+          <label className="inline-block bg-blue-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700">
+            Upload
+            <input type="file" className="hidden" />
+          </label>
+
 
           <div className="col-span-2 text-sm">
-            {type === "Agreement" ? (
-              <span className="text-green-600">Alert: prior 30 days of Expiry</span>
-            ) : (
-              <>
-                <span className="text-red-600 block">Alert: Agreement Pending</span>
-                {type === "WO" && (
-                  <div className="mt-1">
-                    <label className="block text-sm font-medium text-gray-700">
-                      Status:
-                    </label>
-                    <input
-                      type="text"
-                      placeholder="Enter status"
-                      className="border border-gray-300 p-1 rounded w-full text-sm"
-                    />
-                    <p className="text-gray-500 mt-1">
-                      Till status gets converted from WO to Agreement
-                    </p>
-                  </div>
-                )}
-              </>
-            )}
+            <div className="mt-1">
+              <label className="block text-sm font-medium text-gray-700">
+                Status:
+              </label>
+              <input
+                type="text"
+                placeholder="Enter status"
+                className="border border-gray-300 p-1 rounded w-full text-sm"
+              />
+
+            </div>
+
           </div>
         </div>
       ))}
 
-{ /* Entity Type */}
+      { /* Entity Type */}
+
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Entity Type</h2>
         <div className="flex flex-wrap gap-4">
           <label className="flex items-center gap-2">
-            <input type="radio" name="entityType" value="single" className="accent-blue-600" />
+            <input type="radio" name="entityType" value="single" className="accent-blue-600" checked={entityType === "single"}
+              onChange={(e) => setEntityType(e.target.value)}
+            />
             Single Entity
           </label>
           <label className="flex items-center gap-2">
-            <input type="radio" name="entityType" value="group" className="accent-blue-600" />
+            <input type="radio" name="entityType" value="group" className="accent-blue-600" checked={entityType === "group"}
+              onChange={(e) => setEntityType(e.target.value)}
+            />
             Single Entity with Group Companies
           </label>
-          <input
-            type="text"
-            placeholder="Under list / annexure"
-            className="border border-gray-300 p-2 rounded text-sm"
-          />
+          {
+            entityType === 'group' && (
+              <>
+              { underList.map((value,key)=>(
+                
+                <input key={key}
+                  type={value.type}
+                  placeholder={value.placeholder}
+                  className={value.className}
+                />  
+                
+              ))
+              }
+
+                <button className="inline-block bg-blue-600 text-white px-4 py-2 rounded cursor-pointer hover:bg-blue-700" 
+                onClick={duplicateElement}> +
+                </button>
+              </>
+            )
+          }
         </div>
       </div>
 
@@ -135,7 +161,7 @@ const AgreementForm = () => {
         </button>
       </div>
 
-   
+
       {/* Contact Information */}
       <div className="mt-10">
         <h2 className="text-xl font-semibold mb-4 text-gray-800">Contact Information</h2>
@@ -144,6 +170,7 @@ const AgreementForm = () => {
             <h3 className="font-medium text-gray-700 mb-2">Person from I Smart</h3>
             <input type="text" placeholder="Name" className="w-full border p-2 rounded text-sm mb-2" />
             <input type="text" placeholder="Contact No" className="w-full border p-2 rounded text-sm" />
+            <input type="email" placeholder="Email" className="w-full border p-2 rounded text-sm" />
           </div>
           <div>
             <h3 className="font-medium text-gray-700 mb-2">Person from Client</h3>
@@ -153,29 +180,7 @@ const AgreementForm = () => {
           </div>
         </div>
       </div>
-
-      {/* Review Workflow */}
-      <div className="mt-10">
-        <h2 className="text-xl font-semibold mb-4 text-gray-800">Review Workflow</h2>
-        <div className="grid grid-cols-3 gap-6">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Maker (Executive)</label>
-            <input type="text" className="w-full border border-gray-300 p-2 rounded text-sm mb-1" />
-            <span className="text-xs text-gray-500">Escalation</span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Checker (Manager/HOD)</label>
-            <input type="text" className="w-full border border-gray-300 p-2 rounded text-sm mb-1" />
-            <span className="text-xs text-gray-500">Escalation</span>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Approver (Director)</label>
-            <input type="text" className="w-full border border-gray-300 p-2 rounded text-sm mb-1" />
-            <span className="text-xs text-gray-500">Escalation</span>
-          </div>
-        </div>
-      </div>
-
+      
       {/* Submit Button */}
       <div className="mt-10 text-right">
         <button className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 text-sm">
@@ -187,3 +192,7 @@ const AgreementForm = () => {
 };
 
 export default AgreementForm;
+
+
+
+
